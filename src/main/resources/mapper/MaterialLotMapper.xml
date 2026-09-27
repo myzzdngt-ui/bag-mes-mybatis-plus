@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.MaterialLotMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.MaterialLot">
+        <id column="material_id" property="materialId" />
+        <result column="material_code" property="materialCode" />
+        <result column="material_name" property="materialName" />
+        <result column="material_type" property="materialType" />
+        <result column="color_code" property="colorCode" />
+        <result column="lot_no" property="lotNo" />
+        <result column="unit" property="unit" />
+        <result column="qty_available" property="qtyAvailable" />
+        <result column="quality_status" property="qualityStatus" />
+        <result column="supplier_code" property="supplierCode" />
+        <result column="received_at" property="receivedAt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        material_id, material_code, material_name, material_type, color_code, lot_no, unit, qty_available, quality_status, supplier_code, received_at
+    </sql>
+
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.RoutingOperationMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.RoutingOperation">
+        <id column="operation_id" property="operationId" />
+        <result column="routing_id" property="routingId" />
+        <result column="operation_seq" property="operationSeq" />
+        <result column="operation_code" property="operationCode" />
+        <result column="operation_name" property="operationName" />
+        <result column="work_center" property="workCenter" />
+        <result column="required_inspection" property="requiredInspection" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        operation_id, routing_id, operation_seq, operation_code, operation_name, work_center, required_inspection
+    </sql>
+
+</mapper>

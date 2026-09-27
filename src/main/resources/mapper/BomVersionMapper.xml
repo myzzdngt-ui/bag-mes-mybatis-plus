@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.BomVersionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.BomVersion">
+        <id column="bom_id" property="bomId" />
+        <result column="sku_id" property="skuId" />
+        <result column="bom_version" property="bomVersion" />
+        <result column="status" property="status" />
+        <result column="effective_from" property="effectiveFrom" />
+        <result column="effective_to" property="effectiveTo" />
+        <result column="approved_by" property="approvedBy" />
+        <result column="approved_at" property="approvedAt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bom_id, sku_id, bom_version, status, effective_from, effective_to, approved_by, approved_at
+    </sql>
+
+</mapper>

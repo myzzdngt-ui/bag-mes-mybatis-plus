@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.QualityInspectionMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.QualityInspection">
+        <id column="inspection_id" property="inspectionId" />
+        <result column="work_order_id" property="workOrderId" />
+        <result column="report_id" property="reportId" />
+        <result column="inspection_type" property="inspectionType" />
+        <result column="result" property="result" />
+        <result column="defect_code" property="defectCode" />
+        <result column="inspected_qty" property="inspectedQty" />
+        <result column="failed_qty" property="failedQty" />
+        <result column="inspector_id" property="inspectorId" />
+        <result column="inspected_at" property="inspectedAt" />
+        <result column="disposition" property="disposition" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        inspection_id, work_order_id, report_id, inspection_type, result, defect_code, inspected_qty, failed_qty, inspector_id, inspected_at, disposition
+    </sql>
+
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.PackingBoxMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.PackingBox">
+        <id column="box_id" property="boxId" />
+        <result column="box_no" property="boxNo" />
+        <result column="work_order_id" property="workOrderId" />
+        <result column="sku_id" property="skuId" />
+        <result column="packed_qty" property="packedQty" />
+        <result column="status" property="status" />
+        <result column="packed_at" property="packedAt" />
+        <result column="handed_over_at" property="handedOverAt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        box_id, box_no, work_order_id, sku_id, packed_qty, status, packed_at, handed_over_at
+    </sql>
+
+</mapper>

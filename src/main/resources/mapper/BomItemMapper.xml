@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.bagmes.mapper.BomItemMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.bagmes.entity.BomItem">
+        <id column="bom_item_id" property="bomItemId" />
+        <result column="bom_id" property="bomId" />
+        <result column="material_code" property="materialCode" />
+        <result column="qty_per_unit" property="qtyPerUnit" />
+        <result column="loss_rate" property="lossRate" />
+        <result column="color_same_lot" property="colorSameLot" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        bom_item_id, bom_id, material_code, qty_per_unit, loss_rate, color_same_lot
+    </sql>
+
+</mapper>
