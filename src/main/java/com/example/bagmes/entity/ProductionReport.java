@@ -40,7 +40,7 @@ public class ProductionReport implements Serializable {
     @TableField("operation_id")
     private Long operationId;
 
-    @TableId("report_time")
+    @TableField("report_time")
     private LocalDateTime reportTime;
 
     @TableField("input_qty")

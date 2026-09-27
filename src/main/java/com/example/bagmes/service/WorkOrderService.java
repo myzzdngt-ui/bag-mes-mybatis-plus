@@ -1,7 +1,9 @@
 package com.example.bagmes.service;
 
 import com.example.bagmes.entity.WorkOrder;
+import com.example.bagmes.dto.WorkOrderQueryDTO;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 /**
  * <p>
@@ -12,5 +14,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
  * @since 2026-09-27
  */
 public interface WorkOrderService extends IService<WorkOrder> {
+
+    IPage<WorkOrder> pageQuery(WorkOrderQueryDTO query);
 
 }

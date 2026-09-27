@@ -27,6 +27,24 @@
 
 生成目录包括 `entity`、`mapper`、`service`、`service.impl`、`controller` 和 `resources/mapper`。
 
+## 工单多条件分页查询
+
+先执行 `src/main/resources/db/work_order_demo.sql` 插入 3 条演示工单，再启动项目。分页接口为：
+
+```text
+GET http://localhost:8090/work-orders/page?pageNum=1&pageSize=10&status=RELEASED&priority=2
+GET http://localhost:8090/work-orders/page?pageNum=1&pageSize=10&status=RUNNING&skuId=1
+```
+
+支持的条件包括：工单号模糊查询、状态、SKU、优先级、计划开始时间起止范围；结果按优先级降序、计划开始时间升序排列。分页插件配置位于 `src/main/java/com/example/bagmes/config/MybatisPlusConfig.java`。
+
+## 分页查询提交材料
+
+- [依赖与分页配置截图](screenshots/query-config.png)
+- [工单数据截图](screenshots/work-order-data.png)
+- [项目目录结构截图](screenshots/query-project-structure.png)
+- [两组 API 测试结果截图](screenshots/query-api-results.png)
+
 ## 提交材料截图
 
 - [项目目录结构截图](screenshots/project-structure.png)
