@@ -60,3 +60,5 @@ GET http://localhost:8090/work-orders/page?pageNum=1&pageSize=10&status=RUNNING&
 - 材料截图：screenshots/log-table-data.png、screenshots/log-project-structure.png、screenshots/log-api-test-results.png、screenshots/git-commit-record.png
 
 日志切面会为一次接口调用生成统一 trace_id，成功和异常都记录业务日志与接口监控日志；请求参数中的 password、token、secret、authorization 会脱敏，慢请求阈值默认为1000ms，可通过 mes.monitor.slow-threshold-ms 调整。
+
+本任务以分组任务九的 OperationLogAspect、TimeMonitorAspect 为实现依据，将原有业务操作日志和耗时监控能力统一落到 MyBatis-Plus 的 operation_log、api_monitor_log 两张表中。按照需求规格说明书，后续计划、领料、报工、检验、外协、入库和追溯等写操作均可复用 @LogMonitor，并通过 trace_id 关联一次业务请求。

@@ -115,6 +115,16 @@ r.font.color.rgb = RGBColor(0, 0, 0)
 heading(doc, "1 设计目标", 1)
 doc.add_paragraph("本设计面向箱包MES全流程追溯，记录业务操作、接口耗时与异常，支持按trace_id关联一次请求的业务日志和技术监控日志。设计遵循知识点4、5的分层监控、SLA基线、动态阈值思想，保证日志失败不影响业务主流程。")
 
+heading(doc, "1.1 与任务九和需求规格说明书的对接", 2)
+doc.add_paragraph("任务九已经验证了OperationLogAspect记录业务操作、成功失败、操作人、请求摘要、结果摘要、耗时和traceId，TimeMonitorAspect记录排产等接口耗时。本任务将两类能力合并到可持久化的LogMonitorAspect：一次被标注的接口同时写入operation_log和api_monitor_log，避免操作日志与耗时日志分散在内存Store中。")
+doc.add_paragraph("需求规格说明书以订单—计划—工单—工序—批次为主线，要求计划、领料、报工、检验、外协、入库和追溯等关键写操作保留操作人、时间、工单/批次及关键业务数据。本项目将module、operation_name、request_uri、request_params、operator_id、created_at和trace_id作为统一审计入口，后续可在各业务Service方法上复用@LogMonitor。")
+table(doc, ["任务九/需求概念", "任务十落地位置", "作用"], [
+    ["OperationLogAspect", "LogMonitorAspect → operation_log", "记录业务操作、成功失败、异常摘要和请求参数"],
+    ["TimeMonitorAspect", "LogMonitorAspect → api_monitor_log", "记录状态码、duration_ms、slow_flag和异常类型"],
+    ["订单—工单—批次主线", "work_order、production_report、trace_link", "通过业务表和trace_id定位生产过程"],
+    ["统一响应 requestId", "trace_id + 查询接口", "用于日志定位和跨接口关联"],
+])
+
 heading(doc, "2 核心实体及关系说明", 1)
 table(doc, ["实体", "用途", "关键字段"], [
     ["work_order", "生产工单主表", "work_order_id、work_order_no、sku_id、status、priority"],
