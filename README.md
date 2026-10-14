@@ -49,3 +49,14 @@ GET http://localhost:8090/work-orders/page?pageNum=1&pageSize=10&status=RUNNING&
 
 - [项目目录结构截图](screenshots/project-structure.png)
 - [数据库表目录截图](screenshots/database-tables.png)
+
+## 日志及监控设计任务
+
+- 设计文档：[箱包MES日志及监控设计文档](docs/箱包MES日志及监控设计文档.docx)
+- 日志表：operation_log、api_monitor_log
+- 切面入口：@LogMonitor、LogMonitorAspect
+- 分页接口：GET /operation-logs/page、GET /api-monitor-logs/page
+- 演示数据：src/main/resources/db/log_monitor_demo.sql
+- 材料截图：screenshots/log-table-data.png、screenshots/log-project-structure.png、screenshots/log-api-test-results.png、screenshots/git-commit-record.png
+
+日志切面会为一次接口调用生成统一 trace_id，成功和异常都记录业务日志与接口监控日志；请求参数中的 password、token、secret、authorization 会脱敏，慢请求阈值默认为1000ms，可通过 mes.monitor.slow-threshold-ms 调整。
