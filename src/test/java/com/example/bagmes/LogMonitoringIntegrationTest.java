@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.bagmes.entity.ApiMonitorLog;
 import com.example.bagmes.entity.OperationLog;
+import com.example.bagmes.logging.LogMonitor;
 import com.example.bagmes.service.ApiMonitorLogService;
 import com.example.bagmes.service.OperationLogService;
 import org.junit.jupiter.api.BeforeAll;
@@ -12,13 +13,24 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(LogMonitoringIntegrationTest.ThrowingLogController.class)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class LogMonitoringIntegrationTest {
+
+    private static final String WORK_ORDER_MODULE = "WORK_ORDER";
+    private static final String TEST_MODULE = "TEST_LOGGING";
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
@@ -28,6 +40,12 @@ class LogMonitoringIntegrationTest {
 
     @Autowired
     private ApiMonitorLogService apiMonitorLogService;
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @LocalServerPort
+    private int port;
 
     @BeforeAll
     void seedDemoData() {
@@ -88,5 +106,81 @@ class LogMonitoringIntegrationTest {
         assertThat(monitorPage.getRecords())
                 .extracting(ApiMonitorLog::getTraceId)
                 .contains("trace-task-1");
+    }
+
+    @Test
+    void capturesSuccessfulWorkOrderRequestInBothLogs() {
+        long operationCount = operationLogService.count(Wrappers.<OperationLog>lambdaQuery()
+                .eq(OperationLog::getModuleName, WORK_ORDER_MODULE));
+
+        var response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/work-orders/page?pageNum=1&pageSize=10&token=work-order-token",
+                String.class);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(200);
+        assertThat(operationLogService.count(Wrappers.<OperationLog>lambdaQuery()
+                .eq(OperationLog::getModuleName, WORK_ORDER_MODULE))).isEqualTo(operationCount + 1);
+
+        OperationLog operationLog = latestOperationLog(WORK_ORDER_MODULE);
+        ApiMonitorLog monitorLog = latestMonitorLog(operationLog.getTraceId());
+        assertThat(operationLog.getOperationType()).isEqualTo("QUERY");
+        assertThat(operationLog.getOperationName()).isEqualTo("工单分页查询");
+        assertThat(operationLog.getSuccess()).isTrue();
+        assertThat(operationLog.getResponseCode()).isEqualTo(200);
+        assertThat(operationLog.getRequestParams()).contains("***").doesNotContain("work-order-token");
+        assertThat(monitorLog.getTraceId()).isEqualTo(operationLog.getTraceId());
+        assertThat(monitorLog.getStatusCode()).isEqualTo(200);
+        assertThat(monitorLog.getExceptionClass()).isNullOrEmpty();
+    }
+
+    @Test
+    void capturesExceptionWithoutReplacingTheOriginalFailure() {
+        long operationCount = operationLogService.count(Wrappers.<OperationLog>lambdaQuery()
+                .eq(OperationLog::getModuleName, TEST_MODULE));
+
+        var response = restTemplate.getForEntity(
+                "http://localhost:" + port + "/test/log-monitoring/fail?password=very-secret&Token=token-secret&secret=secret-value&Authorization=bearer-value",
+                String.class);
+
+        assertThat(response.getStatusCode().value()).isEqualTo(500);
+        assertThat(operationLogService.count(Wrappers.<OperationLog>lambdaQuery()
+                .eq(OperationLog::getModuleName, TEST_MODULE))).isEqualTo(operationCount + 1);
+
+        OperationLog operationLog = latestOperationLog(TEST_MODULE);
+        ApiMonitorLog monitorLog = latestMonitorLog(operationLog.getTraceId());
+        assertThat(operationLog.getSuccess()).isFalse();
+        assertThat(operationLog.getResponseCode()).isEqualTo(500);
+        assertThat(operationLog.getErrorMessage()).contains("test logging failure");
+        assertThat(operationLog.getRequestParams()).contains("***")
+                .doesNotContain("very-secret", "token-secret", "secret-value", "bearer-value");
+        assertThat(monitorLog.getTraceId()).isEqualTo(operationLog.getTraceId());
+        assertThat(monitorLog.getStatusCode()).isEqualTo(500);
+        assertThat(monitorLog.getExceptionClass()).isEqualTo(IllegalStateException.class.getName());
+        assertThat(monitorLog.getExceptionMessage()).isEqualTo("test logging failure");
+    }
+
+    private OperationLog latestOperationLog(String module) {
+        return operationLogService.getOne(Wrappers.<OperationLog>lambdaQuery()
+                .eq(OperationLog::getModuleName, module)
+                .orderByDesc(OperationLog::getLogId)
+                .last("LIMIT 1"));
+    }
+
+    private ApiMonitorLog latestMonitorLog(String traceId) {
+        return apiMonitorLogService.getOne(Wrappers.<ApiMonitorLog>lambdaQuery()
+                .eq(ApiMonitorLog::getTraceId, traceId)
+                .orderByDesc(ApiMonitorLog::getMonitorId)
+                .last("LIMIT 1"));
+    }
+
+    @RestController
+    @RequestMapping("/test/log-monitoring")
+    static class ThrowingLogController {
+
+        @GetMapping("/fail")
+        @LogMonitor(module = TEST_MODULE, operation = "THROW", name = "日志异常测试")
+        public void fail(@RequestParam String password) {
+            throw new IllegalStateException("test logging failure");
+        }
     }
 }

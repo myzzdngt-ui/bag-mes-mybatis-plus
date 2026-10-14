@@ -3,6 +3,7 @@ package com.example.bagmes.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.example.bagmes.dto.WorkOrderQueryDTO;
 import com.example.bagmes.entity.WorkOrder;
+import com.example.bagmes.logging.LogMonitor;
 import com.example.bagmes.service.WorkOrderService;
 import com.example.bagmes.web.ApiResponse;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,6 +30,7 @@ public class WorkOrderController {
     }
 
     @GetMapping("/page")
+    @LogMonitor(module = "WORK_ORDER", operation = "QUERY", name = "工单分页查询")
     public ApiResponse<IPage<WorkOrder>> pageQuery(@ModelAttribute WorkOrderQueryDTO query) {
         return ApiResponse.success(workOrderService.pageQuery(query));
     }

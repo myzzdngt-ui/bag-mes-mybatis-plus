@@ -12,3 +12,6 @@ mybatis-plus:
     map-underscore-to-camel-case: true
 server:
   port: 8090
+mes:
+  monitor:
+    slow-threshold-ms: 1000
