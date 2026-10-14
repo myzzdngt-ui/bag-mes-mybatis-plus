@@ -90,3 +90,45 @@ CREATE TABLE trace_link (
   target_type VARCHAR(32) NOT NULL, target_id BIGINT UNSIGNED NOT NULL, link_qty DECIMAL(18,4), created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY(trace_id), KEY idx_trace_source(source_type,source_id), KEY idx_trace_target(target_type,target_id)
 ) ENGINE=InnoDB COMMENT='跨物料 工单 报工 成品 箱号的追溯关系';
+
+CREATE TABLE operation_log (
+  log_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '操作日志主键',
+  trace_id VARCHAR(64) NOT NULL COMMENT '请求链路标识',
+  module_name VARCHAR(64) NOT NULL COMMENT '业务模块',
+  operation_type VARCHAR(32) NOT NULL COMMENT '操作类型',
+  operation_name VARCHAR(128) NOT NULL COMMENT '操作名称',
+  request_method VARCHAR(16) NOT NULL COMMENT '请求方法',
+  request_uri VARCHAR(512) NOT NULL COMMENT '请求 URI',
+  request_params JSON COMMENT '请求参数',
+  operator_id BIGINT UNSIGNED COMMENT '操作人 ID',
+  operator_name VARCHAR(128) COMMENT '操作人名称',
+  success TINYINT(1) NOT NULL DEFAULT 1 COMMENT '是否成功',
+  response_code INT UNSIGNED COMMENT '响应状态码',
+  error_message TEXT COMMENT '错误信息',
+  client_ip VARCHAR(64) COMMENT '客户端 IP',
+  user_agent VARCHAR(512) COMMENT '客户端 User-Agent',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (log_id),
+  KEY idx_operation_module_time (module_name, operation_type, created_at),
+  KEY idx_operation_success_time (success, created_at),
+  KEY idx_operation_trace (trace_id)
+) ENGINE=InnoDB COMMENT='业务操作日志';
+
+CREATE TABLE api_monitor_log (
+  monitor_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '接口监控日志主键',
+  trace_id VARCHAR(64) NOT NULL COMMENT '请求链路标识',
+  request_method VARCHAR(16) NOT NULL COMMENT '请求方法',
+  request_uri VARCHAR(512) NOT NULL COMMENT '请求 URI',
+  handler_method VARCHAR(255) COMMENT '处理器方法',
+  status_code INT UNSIGNED COMMENT '响应状态码',
+  duration_ms BIGINT UNSIGNED NOT NULL COMMENT '耗时毫秒',
+  slow_flag TINYINT(1) NOT NULL DEFAULT 0 COMMENT '是否慢请求',
+  exception_class VARCHAR(255) COMMENT '异常类型',
+  exception_message TEXT COMMENT '异常信息',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  PRIMARY KEY (monitor_id),
+  KEY idx_monitor_uri_time (request_uri, created_at),
+  KEY idx_monitor_slow_duration (slow_flag, duration_ms),
+  KEY idx_monitor_status_time (status_code, created_at),
+  KEY idx_monitor_trace (trace_id)
+) ENGINE=InnoDB COMMENT='接口性能与异常监控日志';

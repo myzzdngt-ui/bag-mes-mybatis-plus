@@ -33,7 +33,8 @@ public final class CodeGenerator {
                 .strategyConfig(builder -> builder
                         .addInclude("product_sku", "material_lot", "bom_version", "bom_item", "routing_version",
                                 "routing_operation", "work_order", "material_issue", "production_report",
-                                "quality_inspection", "packing_box", "trace_link")
+                                "quality_inspection", "packing_box", "trace_link", "operation_log",
+                                "api_monitor_log")
                         .entityBuilder().enableLombok().enableTableFieldAnnotation().formatFileName("%s")
                         .mapperBuilder().enableMapperAnnotation().enableBaseResultMap().enableBaseColumnList()
                         .serviceBuilder().formatServiceFileName("%sService").formatServiceImplFileName("%sServiceImpl")
