@@ -52,13 +52,16 @@ GET http://localhost:8090/work-orders/page?pageNum=1&pageSize=10&status=RUNNING&
 
 ## 日志及监控设计任务
 
-- 设计文档：[箱包MES日志及监控设计文档](docs/箱包MES日志及监控设计文档.docx)
-- 日志表：operation_log、api_monitor_log
-- 切面入口：@LogMonitor、LogMonitorAspect
+- 日志设计文档：[箱包MES日志及监控设计文档](docs/箱包MES日志及监控设计文档.docx)
+- 测试方案：[箱包MES自动化测试方案](docs/箱包MES自动化测试方案.docx)
+- 运行日志：SLF4J 门面 + Spring Boot 默认 Logback 实现；配置位于 `src/main/resources/logback-spring.xml`
+- 请求链路：`RequestTraceLoggingFilter` 生成 `traceId`，写入 MDC 和 `X-Trace-Id` 响应头
+- 日志表：`operation_log`、`api_monitor_log` 及其分页查询接口保留用于任务10数据库日志记录查询
 - 分页接口：GET /operation-logs/page、GET /api-monitor-logs/page
 - 演示数据：src/main/resources/db/log_monitor_demo.sql
+- 文件日志：`logs/bag-mes.log`，每天滚动、单文件10MB切分、保留30天、上限1GB
 - 材料截图：screenshots/log-table-data.png、screenshots/log-project-structure.png、screenshots/log-api-test-results.png、screenshots/git-commit-record.png
 
-日志切面会为一次接口调用生成统一 trace_id，成功和异常都记录业务日志与接口监控日志；请求参数中的 password、token、secret、authorization 会脱敏，慢请求阈值默认为1000ms，可通过 mes.monitor.slow-threshold-ms 调整。
+服务代码通过 SLF4J 按级别记录业务事件，HTTP 过滤器记录方法、路径、状态和耗时；慢请求阈值默认为1000ms，可通过 `mes.monitor.slow-threshold-ms` 调整。MDC 中的 traceId 随每条日志输出。日志中禁止记录请求正文、凭据和完整查询参数。任务14移除任务10的 `@LogMonitor`/`LogMonitorAspect` 自动数据库采集能力；任务10的数据库日志表与分页查询代码保留，现有数据库记录仍可查询，新运行日志写入控制台和滚动文件。
 
-本任务以分组任务九的 OperationLogAspect、TimeMonitorAspect 为实现依据，将原有业务操作日志和耗时监控能力统一落到 MyBatis-Plus 的 operation_log、api_monitor_log 两张表中。按照需求规格说明书，后续计划、领料、报工、检验、外协、入库和追溯等写操作均可复用 @LogMonitor，并通过 trace_id 关联一次业务请求。
+任务10的数据库日志设计文档已按任务14修订为 SLF4J + Logback 方案。日志表仍作为任务10的数据库查询材料保留；任务14运行日志按级别写入控制台和文件，不再通过 AOP 自动写入数据库。
